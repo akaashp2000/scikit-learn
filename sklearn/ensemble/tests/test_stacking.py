@@ -60,6 +60,8 @@ X_multilabel, y_multilabel = make_multilabel_classification(
     n_classes=3, random_state=42
 )
 X_binary, y_binary = make_classification(n_classes=2, random_state=42)
+X_breast_cancer, y_breast_cancer = load_breast_cancer(return_X_y=True)
+X_breast_cancer = scale(X_breast_cancer)
 
 
 @pytest.mark.parametrize(
@@ -441,10 +443,8 @@ def test_stacking_classifier_stratify_default():
                 final_estimator=LogisticRegression(),
                 cv=KFold(shuffle=True, random_state=42),
             ),
-            *[
-                scale(data) if idx == 0 else data
-                for idx, data in list(enumerate(load_breast_cancer(return_X_y=True)))
-            ],
+            X_breast_cancer,
+            y_breast_cancer,
         ),
         (
             StackingRegressor(
@@ -507,10 +507,8 @@ def test_stacking_classifier_sample_weight_fit_param():
                 ],
                 final_estimator=LogisticRegression(),
             ),
-            *[
-                scale(data) if idx == 0 else data
-                for idx, data in list(enumerate(load_breast_cancer(return_X_y=True)))
-            ],
+            X_breast_cancer,
+            y_breast_cancer,
         ),
         (
             StackingRegressor(

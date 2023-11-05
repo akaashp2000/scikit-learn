@@ -292,10 +292,17 @@ class LinearModelLoss:
 
         if not self.base_loss.is_multiclass:
             grad = np.empty_like(coef, dtype=weights.dtype)
-            with np.errstate(all="raise"):
+            with np.errstate(over="raise"):
                 try:
                     grad[:n_features] = X.T @ grad_pointwise + l2_reg_strength * weights
+                    print("min entry", np.min(grad_pointwise))
+                    print("max entry", np.max(grad_pointwise))
+                    print("inf in grad_pointwise?", np.isinf(grad_pointwise).any())
+                    print("nan in grad_pointwise?", np.isnan(grad_pointwise).any())
+                    print("-" * 60)
                 except FloatingPointError:
+                    print("grad_pointwise:")
+                    print(grad_pointwise)
                     raise ValueError(
                         "Overflow detected. Try scaling the target variable or"
                         " features, or using a different solver"

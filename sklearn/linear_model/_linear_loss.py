@@ -300,18 +300,20 @@ class LinearModelLoss:
                     print("inf in grad_pointwise?", np.isinf(grad_pointwise).any())
                     print("nan in grad_pointwise?", np.isnan(grad_pointwise).any())
                     print("-" * 60)
-                except FloatingPointError:
+                except FloatingPointError as exc:
                     print("grad_pointwise:")
                     print(grad_pointwise)
                     print("min entry", np.min(grad_pointwise))
                     print("max entry", np.max(grad_pointwise))
+                    print("min abs entry", np.min(np.abs(grad_pointwise)))
+                    print("max abs entry", np.max(np.abs(grad_pointwise)))
                     print("inf in grad_pointwise?", np.isinf(grad_pointwise).any())
                     print("nan in grad_pointwise?", np.isnan(grad_pointwise).any())
                     print("-" * 60)
                     raise ValueError(
                         "Overflow detected. Try scaling the target variable or"
                         " features, or using a different solver"
-                    ) from None
+                    ) from exc
             if self.fit_intercept:
                 grad[-1] = grad_pointwise.sum()
         else:
@@ -322,11 +324,11 @@ class LinearModelLoss:
                     grad[:, :n_features] = (
                         grad_pointwise.T @ X + l2_reg_strength * weights
                     )
-                except FloatingPointError:
+                except FloatingPointError as exc:
                     raise ValueError(
                         "Overflow detected. Try scaling the target variable or"
                         " features, or using a different solver"
-                    ) from None
+                    ) from exc
             if self.fit_intercept:
                 grad[:, -1] = grad_pointwise.sum(axis=0)
             if coef.ndim == 1:
